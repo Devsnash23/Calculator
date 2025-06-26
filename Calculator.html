@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Basic Calculator</title>
+<style>
+  :root {
+    --background: #ffffff;
+    --page-bg: #f9fafb;
+    --primary-text: #111827;
+    --secondary-text: #6b7280;
+    --button-bg: #f3f4f6;
+    --button-hover-bg: #e5e7eb;
+    --button-active-bg: #d1d5db;
+    --button-shadow: rgba(0,0,0,0.05);
+    --button-shadow-accent: rgba(37, 99, 235, 0.4);
+    --border-radius: 0.75rem;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+      Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    --operator-color: #2563eb;
+    --equal-bg: #1e40af;
+    --equal-bg-hover: #1e3a8a;
+    --equal-shadow: rgba(30, 64, 175, 0.5);
+  }
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background-color: var(--page-bg);
+    color: var(--primary-text);
+    font-family: var(--font-family);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 3rem 1rem 6rem;
+  }
+  main {
+    max-width: 1200px;
+    width: 100%;
+    padding: 0 1rem;
+  }
+  h1 {
+    font-weight: 800;
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-text);
+    user-select: none;
+    letter-spacing: -0.04em;
+  }
+  p.subtitle {
+    color: var(--secondary-text);
+    font-size: 1.125rem;
+    margin-bottom: 3rem;
+    user-select: none;
+  }
+  .calculator-card {
+    background-color: var(--background);
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: var(--border-radius);
+    box-shadow: 0 12px 30px var(--button-shadow);
+    padding: 2.5rem 2rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+  .display {
+    background: var(--button-bg);
+    color: var(--primary-text);
+    font-size: 3rem;
+    font-weight: 700;
+    padding: 1rem 1.25rem;
+    border-radius: var(--border-radius);
+    text-align: right;
+    height: 4.25rem;
+    user-select: none;
+    overflow-x: auto;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+  button {
+    background-color: var(--button-bg);
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px var(--button-shadow);
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--secondary-text);
+    padding: 1.25rem;
+    cursor: pointer;
+    transition:
+      background-color 0.3s cubic-bezier(0.4,0,0.2,1),
+      color 0.3s cubic-bezier(0.4,0,0.2,1),
+      box-shadow 0.25s ease,
+      transform 0.25s ease;
+    user-select: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  button:focus-visible {
+    outline: 3px solid var(--operator-color);
+    outline-offset: 3px;
+  }
+  button:hover {
+    background-color: var(--button-hover-bg);
+    color: var(--primary-text);
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px var(--button-shadow);
+  }
+  button:active {
+    background-color: var(--button-active-bg);
+    transform: scale(0.98);
+    box-shadow: 0 3px 8px var(--button-shadow);
+  }
+  .span-two {
+    grid-column: span 2;
+  }
+  .operator {
+    color: var(--operator-color);
+    font-weight: 700;
+  }
+  #equals {
+    background-color: var(--equal-bg);
+    color: white;
+    box-shadow: 0 8px 20px var(--equal-shadow);
+    font-weight: 700;
+  }
+  #equals:hover {
+    background-color: var(--equal-bg-hover);
+    box-shadow: 0 10px 24px var(--equal-shadow);
+    transform: scale(1.07);
+  }
+  #equals:active {
+    background-color: var(--equal-bg);
+    box-shadow: 0 6px 16px var(--equal-shadow);
+    transform: scale(0.97);
+  }
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 0.5rem;
+    }
+    p.subtitle {
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+    .calculator-card {
+      max-width: 100%;
+      padding: 2rem 1rem 1.5rem;
+    }
+    .display {
+      font-size: 2.25rem;
+      height: 3.75rem;
+      padding: 0.75rem 1rem;
+    }
+    button {
+      font-size: 1.125rem;
+      padding: 1rem;
+    }
+  }
+</style>
+</head>
+<body>
+  <main>
+    <h1>Basic Calculator</h1>
+    <p class="subtitle">Perform addition, subtraction, multiplication, and division with ease.</p>
+    <section class="calculator-card" aria-label="Basic calculator">
+      <div class="display" id="display" role="textbox" aria-live="polite" aria-atomic="true" tabindex="0">0</div>
+      <div class="buttons" role="group" aria-label="Calculator buttons">
+        <button type="button" id="clear" aria-label="Clear">C</button>
+        <button type="button" id="backspace" aria-label="Backspace">⌫</button>
+        <button type="button" class="operator" data-op="/">÷</button>
+        <button type="button" class="operator" data-op="*">×</button>
+
+        <button type="button" data-num="7">7</button>
+        <button type="button" data-num="8">8</button>
+        <button type="button" data-num="9">9</button>
+        <button type="button" class="operator" data-op="-">−</button>
+
+        <button type="button" data-num="4">4</button>
+        <button type="button" data-num="5">5</button>
+        <button type="button" data-num="6">6</button>
+        <button type="button" class="operator" data-op="+">+</button>
+
+        <button type="button" data-num="1">1</button>
+        <button type="button" data-num="2">2</button>
+        <button type="button" data-num="3">3</button>
+        <button type="button" data-num=".">.</button>
+
+        <button type="button" data-num="0" class="span-two">0</button>
+        <button type="button" id="equals" class="span-two" aria-label="Equals">=</button>
+      </div>
+    </section>
+  </main>
+
+<script>
+  (() => {
+    const display = document.getElementById('display');
+    let currentInput = '0';
+    let resultDisplayed = false;
+
+    function updateDisplay() {
+      display.textContent = currentInput;
+    }
+
+    function isOperator(char) {
+      return ['+', '-', '*', '/'].includes(char);
+    }
+
+    function appendNumber(num) {
+      if (resultDisplayed) {
+        currentInput = num === '.' ? '0.' : num; 
+        resultDisplayed = false;
+      } else if (currentInput === '0' && num !== '.') {
+        currentInput = num;
+      } else {
+        if (num === '.') {
+          const lastOpIndex = Math.max(
+            currentInput.lastIndexOf('+'),
+            currentInput.lastIndexOf('-'),
+            currentInput.lastIndexOf('*'),
+            currentInput.lastIndexOf('/')
+          );
+          const lastNumber = currentInput.slice(lastOpIndex + 1);
+          if (lastNumber.includes('.')) return;
+        }
+        currentInput += num;
+      }
+    }
+
+    function appendOperator(op) {
+      if (resultDisplayed) {
+        resultDisplayed = false;
+      }
+      if (currentInput === '' && op === '-') {
+        currentInput = '-';
+        return;
+      }
+      if (currentInput === '') return;
+      const lastChar = currentInput.slice(-1);
+      if (isOperator(lastChar)) {
+        currentInput = currentInput.slice(0, -1) + op;
+      } else {
+        currentInput += op;
+      }
+    }
+
+    function calculate() {
+      try {
+        while (isOperator(currentInput.slice(-1))) {
+          currentInput = currentInput.slice(0, -1);
+        }
+        if (currentInput === '') return;
+        if (!/^[\d+\-*/.]+$/.test(currentInput)) {
+          throw new Error('Invalid input');
+        }
+        const res = Function('"use strict";return (' + currentInput + ')')();
+        currentInput = res.toString();
+        resultDisplayed = true;
+      } catch {
+        currentInput = 'Error';
+        resultDisplayed = true;
+      }
+    }
+
+    function clearAll() {
+      currentInput = '0';
+      resultDisplayed = false;
+    }
+
+    function backspace() {
+      if (resultDisplayed) {
+        currentInput = '0';
+        resultDisplayed = false;
+      } else {
+        currentInput = currentInput.slice(0, -1);
+        if (currentInput === '') currentInput = '0';
+      }
+    }
+
+    document.querySelectorAll('[data-num]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        appendNumber(btn.getAttribute('data-num'));
+        updateDisplay();
+      });
+    });
+
+    document.querySelectorAll('.operator').forEach(btn => {
+      btn.addEventListener('click', () => {
+        appendOperator(btn.getAttribute('data-op'));
+        updateDisplay();
+      });
+    });
+
+    document.getElementById('clear').addEventListener('click', () => {
+      clearAll();
+      updateDisplay();
+    });
+
+    document.getElementById('backspace').addEventListener('click', () => {
+      backspace();
+      updateDisplay();
+    });
+
+    document.getElementById('equals').addEventListener('click', () => {
+      calculate();
+      updateDisplay();
+    });
+
+    window.addEventListener('keydown', e => {
+      if (e.key >= '0' && e.key <= '9') {
+        appendNumber(e.key);
+        updateDisplay();
+      } else if (['+', '-', '*', '/'].includes(e.key)) {
+        appendOperator(e.key);
+        updateDisplay();
+      } else if (e.key === 'Enter' || e.key === '=') {
+        e.preventDefault();
+        calculate();
+        updateDisplay();
+      } else if (e.key === 'Backspace') {
+        backspace();
+        updateDisplay();
+      } else if (e.key === 'Escape') {
+        clearAll();
+        updateDisplay();
+      } else if (e.key === '.') {
+        appendNumber(e.key);
+        updateDisplay();
+      }
+    });
+  })();
+</script>
+</body>
+</html>
+
